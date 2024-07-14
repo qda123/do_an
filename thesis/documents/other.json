@@ -1,0 +1,70 @@
+{
+    "experiment.py": {
+      "SCP_Experiment": {
+        "description": "A class to manage and execute experiments for the SCP (Signal Classification Project). It handles data preparation, model training, and evaluation.",
+        "methods": {
+          "__init__": {
+            "description": "Initializes the experiment with necessary parameters and sets up the folder structure.",
+            "parameters": {
+              "experiment_name": "Name of the experiment.",
+              "task": "Task to be performed (e.g., 'subdiagnostic', 'superdiagnostic').",
+              "datafolder": "Path to the data folder.",
+              "outputfolder": "Path to the output folder.",
+              "models": "List of models to be used in the experiment.",
+              "sampling_frequency": "Sampling frequency of the data (default is 100).",
+              "min_samples": "Minimum number of samples required (default is 0).",
+              "train_fold": "Fold number for training (default is 8).",
+              "val_fold": "Fold number for validation (default is 9).",
+              "test_fold": "Fold number for testing (default is 10).",
+              "folds_type": "Type of folds to be used (default is 'strat')."
+            }
+          },
+          "prepare": {
+            "description": "Prepares the data for the experiment by loading, preprocessing, and splitting it into training, validation, and test sets.",
+            "steps": [
+              "Load the dataset.",
+              "Preprocess label data.",
+              "Select relevant data and convert to one-hot.",
+              "Split data into training, validation, and test sets.",
+              "Preprocess signal data.",
+              "Save train and test labels."
+            ]
+          },
+          "perform": {
+            "description": "Trains the models specified in the experiment and saves the predictions.",
+            "steps": [
+              "Iterate over each model description.",
+              "Create a folder for the model outputs.",
+              "Load the respective model.",
+              "Fit the model on the training data.",
+              "Predict on training, validation, and test sets and save the predictions."
+            ]
+          },
+          "evaluate": {
+            "description": "Evaluates the models using bootstrapping or point estimates and saves the results.",
+            "parameters": {
+              "n_bootstraping_samples": "Number of bootstrap samples (default is 100).",
+              "n_jobs": "Number of jobs to run in parallel (default is 20).",
+              "bootstrap_eval": "Whether to use bootstrapping for evaluation (default is False).",
+              "dumped_bootstraps": "Whether to use previously dumped bootstrap samples (default is True)."
+            },
+            "steps": [
+              "Load the labels for training, validation, and test sets.",
+              "Generate bootstrap samples if required.",
+              "Iterate over each model and evaluate its performance.",
+              "Save the evaluation results."
+            ]
+          }
+        }
+      }
+    },
+    "main.py": {
+      "description": "Main script to run the experiments. It defines the models and tasks, and executes the experiments.",
+      "steps": [
+        "Define the data and output folders.",
+        "Define the models to be used in the experiments.",
+        "Define the experiments to be performed.",
+        "Iterate over each experiment, prepare the data, perform the training, and optionally evaluate the models."
+      ]
+    }
+  }

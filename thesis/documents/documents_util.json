@@ -1,0 +1,555 @@
+{
+    "utils.py": {
+      "description": "This script contains utility functions for data loading, processing, evaluation, and model evaluation related to ECG data analysis.",
+      "functions": {
+        "generate_results": {
+          "description": "Generates evaluation results for a given set of indices, true labels, predicted labels, and thresholds.",
+          "parameters": [
+            {"name": "idxs", "type": "list", "description": "Indices of the data points to evaluate."},
+            {"name": "y_true", "type": "numpy.ndarray", "description": "True labels."},
+            {"name": "y_pred", "type": "numpy.ndarray", "description": "Predicted labels."},
+            {"name": "thresholds", "type": "list", "description": "Thresholds for binary classification."}
+          ],
+          "returns": "A DataFrame containing the evaluation results."
+        },
+        "evaluate_experiment": {
+          "description": "Evaluates the performance of an experiment by comparing true labels with predicted labels.",
+          "parameters": [
+            {"name": "y_true", "type": "numpy.ndarray", "description": "True labels."},
+            {"name": "y_pred", "type": "numpy.ndarray", "description": "Predicted labels."},
+            {"name": "thresholds", "type": "list", "description": "Thresholds for binary classification."}
+          ],
+          "returns": "A DataFrame containing the evaluation results."
+        },
+        "challenge_metrics": {
+          "description": "Computes the challenge metrics for the PhysioNet/CinC Challenges.",
+          "parameters": [
+            {"name": "y_true", "type": "numpy.ndarray", "description": "True labels."},
+            {"name": "y_pred", "type": "numpy.ndarray", "description": "Predicted labels."},
+            {"name": "beta1", "type": "float", "description": "Beta parameter for F-beta score."},
+            {"name": "beta2", "type": "float", "description": "Beta parameter for G-beta score."},
+            {"name": "class_weights", "type": "numpy.ndarray", "description": "Class weights."},
+            {"name": "single", "type": "bool", "description": "Whether to evaluate a single class."}
+          ],
+          "returns": "A dictionary containing the F-beta and G-beta scores."
+        },
+        "get_appropriate_bootstrap_samples": {
+          "description": "Generates bootstrap samples for the given true labels.",
+          "parameters": [
+            {"name": "y_true", "type": "numpy.ndarray", "description": "True labels."},
+            {"name": "n_bootstraping_samples", "type": "int", "description": "Number of bootstrap samples to generate."}
+          ],
+          "returns": "A list of bootstrap samples."
+        },
+        "find_optimal_cutoff_threshold": {
+          "description": "Finds the optimal cutoff threshold for binary classification.",
+          "parameters": [
+            {"name": "target", "type": "numpy.ndarray", "description": "Target labels."},
+            {"name": "predicted", "type": "numpy.ndarray", "description": "Predicted probabilities."}
+          ],
+          "returns": "The optimal cutoff threshold."
+        },
+        "find_optimal_cutoff_thresholds": {
+          "description": "Finds the optimal cutoff thresholds for each class.",
+          "parameters": [
+            {"name": "y_true", "type": "numpy.ndarray", "description": "True labels."},
+            {"name": "y_pred", "type": "numpy.ndarray", "description": "Predicted probabilities."}
+          ],
+          "returns": "A list of optimal cutoff thresholds for each class."
+        },
+        "find_optimal_cutoff_threshold_for_Gbeta": {
+          "description": "Finds the optimal cutoff threshold for the G-beta score.",
+          "parameters": [
+            {"name": "target", "type": "numpy.ndarray", "description": "Target labels."},
+            {"name": "predicted", "type": "numpy.ndarray", "description": "Predicted probabilities."},
+            {"name": "n_thresholds", "type": "int", "description": "Number of thresholds to evaluate."}
+          ],
+          "returns": "The optimal cutoff threshold for the G-beta score."
+        },
+        "find_optimal_cutoff_thresholds_for_Gbeta": {
+          "description": "Finds the optimal cutoff thresholds for each class with respect to the G-beta score.",
+          "parameters": [
+            {"name": "y_true", "type": "numpy.ndarray", "description": "True labels."},
+            {"name": "y_pred", "type": "numpy.ndarray", "description": "Predicted probabilities."}
+          ],
+          "returns": "A list of optimal cutoff thresholds for each class with respect to the G-beta score."
+        },
+        "apply_thresholds": {
+          "description": "Applies class-wise thresholds to prediction scores to get binary format.",
+          "parameters": [
+            {"name": "preds", "type": "numpy.ndarray", "description": "Prediction scores."},
+            {"name": "thresholds", "type": "list", "description": "Thresholds for binary classification."}
+          ],
+          "returns": "Binary predictions."
+        },
+        "load_dataset": {
+          "description": "Loads the dataset from the given path.",
+          "parameters": [
+            {"name": "path", "type": "str", "description": "Path to the dataset."},
+            {"name": "sampling_rate", "type": "int", "description": "Sampling rate of the data."},
+            {"name": "release", "type": "bool", "description": "Whether to release the data."}
+          ],
+          "returns": "A tuple containing the raw data and the annotation data."
+        },
+        "load_raw_data_ptbxl": {
+          "description": "Loads raw data for the PTB-XL dataset.",
+          "parameters": [
+            {"name": "df", "type": "pandas.DataFrame", "description": "DataFrame containing the annotation data."},
+            {"name": "sampling_rate", "type": "int", "description": "Sampling rate of the data."},
+            {"name": "path", "type": "str", "description": "Path to the dataset."}
+          ],
+          "returns": "The raw data."
+        },
+        "compute_label_aggregations": {
+          "description": "Computes label aggregations for the given DataFrame.",
+          "parameters": [
+            {"name": "df", "type": "pandas.DataFrame", "description": "DataFrame containing the annotation data."},
+            {"name": "folder", "type": "str", "description": "Path to the folder containing the aggregation data."},
+            {"name": "ctype", "type": "str", "description": "Type of aggregation."}
+          ],
+          "returns": "The DataFrame with computed label aggregations."
+        },
+        "select_data": {
+          "description": "Selects data based on the given criteria.",
+          "parameters": [
+            {"name": "XX", "type": "numpy.ndarray", "description": "Raw data."},
+            {"name": "YY", "type": "pandas.DataFrame", "description": "Annotation data."},
+            {"name": "ctype", "type": "str", "description": "Type of aggregation."},
+            {"name": "min_samples", "type": "int", "description": "Minimum number of samples."},
+            {"name": "outputfolder", "type": "str", "description": "Path to the output folder."}
+          ],
+          "returns": "A tuple containing the selected data, annotation data, labels, and MultiLabelBinarizer."
+        },
+        "preprocess_signals": {
+          "description": "Preprocesses the signals by standardizing them.",
+          "parameters": [
+            {"name": "X_train", "type": "numpy.ndarray", "description": "Training data."},
+            {"name": "X_validation", "type": "numpy.ndarray", "description": "Validation data."},
+            {"name": "X_test", "type": "numpy.ndarray", "description": "Test data."},
+            {"name": "outputfolder", "type": "str", "description": "Path to the output folder."}
+          ],
+          "returns": "A tuple containing the preprocessed training, validation, and test data."
+        },
+        "apply_standardizer": {
+          "description": "Applies the standardizer to the given data.",
+          "parameters": [
+            {"name": "X", "type": "numpy.ndarray", "description": "Data to be standardized."},
+            {"name": "ss", "type": "sklearn.preprocessing.StandardScaler", "description": "StandardScaler object."}
+          ],
+          "returns": "The standardized data."
+        }
+      }
+    },
+    "timeseries_util.py": {
+      "description": "This script contains utility functions and classes for handling time series data, including filtering, dataset creation, and data transformations.",
+      "functions": {
+        "butter_filter": {
+          "description": "Creates a Butterworth filter with the given specifications.",
+          "parameters": [
+            {"name": "lowcut", "type": "float", "description": "Low cutoff frequency."},
+            {"name": "highcut", "type": "float", "description": "High cutoff frequency."},
+            {"name": "fs", "type": "float", "description": "Sampling frequency."},
+            {"name": "order", "type": "int", "description": "Order of the filter."},
+            {"name": "btype", "type": "str", "description": "Type of the filter (e.g., 'band', 'low', 'high')."}
+          ],
+          "returns": "The Butterworth filter coefficients."
+        },
+        "butter_filter_frequency_response": {
+          "description": "Computes the frequency response of a given Butterworth filter.",
+          "parameters": [
+            {"name": "filter", "type": "numpy.ndarray", "description": "Butterworth filter coefficients."}
+          ],
+          "returns": "A tuple containing the frequency and gain arrays."
+        },
+        "apply_butter_filter": {
+          "description": "Applies the Butterworth filter to the given data.",
+          "parameters": [
+            {"name": "data", "type": "numpy.ndarray", "description": "Data to be filtered."},
+            {"name": "filter", "type": "numpy.ndarray", "description": "Butterworth filter coefficients."},
+            {"name": "forwardbackward", "type": "bool", "description": "Whether to apply the filter forward and backward."}
+          ],
+          "returns": "The filtered data."
+        },
+        "dataset_add_chunk_col": {
+          "description": "Adds a chunk column to the dataset DataFrame.",
+          "parameters": [
+            {"name": "df", "type": "pandas.DataFrame", "description": "DataFrame containing the dataset."},
+            {"name": "col", "type": "str", "description": "Column name to group by."}
+          ],
+          "returns": "The DataFrame with the added chunk column."
+        },
+        "dataset_add_length_col": {
+          "description": "Adds a length column to the dataset DataFrame.",
+          "parameters": [
+            {"name": "df", "type": "pandas.DataFrame", "description": "DataFrame containing the dataset."},
+            {"name": "col", "type": "str", "description": "Column name containing the data filenames."},
+            {"name": "data_folder", "type": "str", "description": "Path to the data folder."}
+          ],
+          "returns": "The DataFrame with the added length column."
+        },
+        "dataset_add_labels_col": {
+          "description": "Adds a labels column to the dataset DataFrame.",
+          "parameters": [
+            {"name": "df", "type": "pandas.DataFrame", "description": "DataFrame containing the dataset."},
+            {"name": "col", "type": "str", "description": "Column name containing the label filenames."},
+            {"name": "data_folder", "type": "str", "description": "Path to the data folder."}
+          ],
+          "returns": "The DataFrame with the added labels column."
+        },
+        "dataset_add_mean_col": {
+          "description": "Adds a mean column to the dataset DataFrame.",
+          "parameters": [
+            {"name": "df", "type": "pandas.DataFrame", "description": "DataFrame containing the dataset."},
+            {"name": "col", "type": "str", "description": "Column name containing the data filenames."},
+            {"name": "axis", "type": "tuple", "description": "Axis along which to compute the mean."},
+            {"name": "data_folder", "type": "str", "description": "Path to the data folder."}
+          ],
+          "returns": "The DataFrame with the added mean column."
+        },
+        "dataset_add_median_col": {
+          "description": "Adds a median column to the dataset DataFrame.",
+          "parameters": [
+            {"name": "df", "type": "pandas.DataFrame", "description": "DataFrame containing the dataset."},
+            {"name": "col", "type": "str", "description": "Column name containing the data filenames."},
+            {"name": "axis", "type": "tuple", "description": "Axis along which to compute the median."},
+            {"name": "data_folder", "type": "str", "description": "Path to the data folder."}
+          ],
+          "returns": "The DataFrame with the added median column."
+        },
+        "dataset_add_std_col": {
+          "description": "Adds a standard deviation column to the dataset DataFrame.",
+          "parameters": [
+            {"name": "df", "type": "pandas.DataFrame", "description": "DataFrame containing the dataset."},
+            {"name": "col", "type": "str", "description": "Column name containing the data filenames."},
+            {"name": "axis", "type": "tuple", "description": "Axis along which to compute the standard deviation."},
+            {"name": "data_folder", "type": "str", "description": "Path to the data folder."}
+          ],
+          "returns": "The DataFrame with the added standard deviation column."
+        },
+        "dataset_add_iqr_col": {
+          "description": "Adds an interquartile range column to the dataset DataFrame.",
+          "parameters": [
+            {"name": "df", "type": "pandas.DataFrame", "description": "DataFrame containing the dataset."},
+            {"name": "col", "type": "str", "description": "Column name containing the data filenames."},
+            {"name": "axis", "type": "tuple", "description": "Axis along which to compute the interquartile range."},
+            {"name": "data_folder", "type": "str", "description": "Path to the data folder."}
+          ],
+          "returns": "The DataFrame with the added interquartile range column."
+        },
+        "dataset_get_stats": {
+          "description": "Computes weighted means and standard deviations from mean, standard deviation, and length columns of the DataFrame.",
+          "parameters": [
+            {"name": "df", "type": "pandas.DataFrame", "description": "DataFrame containing the dataset."},
+            {"name": "col", "type": "str", "description": "Column name containing the data filenames."},
+            {"name": "median", "type": "bool", "description": "Whether to use median instead of mean."}
+          ],
+          "returns": "A tuple containing the weighted mean and standard deviation."
+        },
+        "npys_to_memmap": {
+          "description": "Converts a list of numpy files to a memory-mapped file.",
+          "parameters": [
+            {"name": "npys", "type": "list", "description": "List of numpy file paths."},
+            {"name": "target_filename", "type": "str", "description": "Path to the target memory-mapped file."},
+            {"name": "delete_npys", "type": "bool", "description": "Whether to delete the original numpy files."}
+          ],
+          "returns": "None"
+        },
+        "reformat_as_memmap": {
+          "description": "Reformats the dataset DataFrame to use memory-mapped files.",
+          "parameters": [
+            {"name": "df", "type": "pandas.DataFrame", "description": "DataFrame containing the dataset."},
+            {"name": "target_filename", "type": "str", "description": "Path to the target memory-mapped file."},
+            {"name": "data_folder", "type": "str", "description": "Path to the data folder."},
+            {"name": "annotation", "type": "bool", "description": "Whether the dataset contains annotations."},
+            {"name": "delete_npys", "type": "bool", "description": "Whether to delete the original numpy files."}
+          ],
+          "returns": "The DataFrame with the reformatted data column."
+        }
+      },
+        "classes": {
+          "TimeseriesDatasetCrops": {
+            "description": "A PyTorch Dataset class for handling time series data with partial crops.",
+            "methods": {
+              "__init__": {
+                "description": "Initializes the TimeseriesDatasetCrops object.",
+                "parameters": [
+                  {"name": "df", "type": "pandas.DataFrame", "description": "DataFrame containing the dataset."},
+                  {"name": "output_size", "type": "int", "description": "Size of the output crops."},
+                  {"name": "chunk_length", "type": "int", "description": "Length of the chunks to split the data into."},
+                  {"name": "min_chunk_length", "type": "int", "description": "Minimum length of the chunks."},
+                  {"name": "memmap_filename", "type": "str", "description": "Path to the memory-mapped file."},
+                  {"name": "npy_data", "type": "numpy.ndarray", "description": "Numpy array containing the data."},
+                  {"name": "random_crop", "type": "bool", "description": "Whether to apply random cropping."},
+                  {"name": "data_folder", "type": "str", "description": "Path to the data folder."},
+                  {"name": "num_classes", "type": "int", "description": "Number of classes."},
+                  {"name": "copies", "type": "int", "description": "Number of copies of each sample."},
+                  {"name": "col_lbl", "type": "str", "description": "Column name for labels."},
+                  {"name": "stride", "type": "int", "description": "Stride for chunking."},
+                  {"name": "start_idx", "type": "int", "description": "Starting index for chunking."},
+                  {"name": "annotation", "type": "bool", "description": "Whether the dataset contains annotations."},
+                  {"name": "transforms", "type": "list", "description": "List of transformations to apply."}
+                ],
+                "returns": "None"
+              },
+              "__len__": {
+                "description": "Returns the number of samples in the dataset.",
+                "parameters": [],
+                "returns": "int"
+              },
+              "__getitem__": {
+                "description": "Returns a sample from the dataset.",
+                "parameters": [
+                  {"name": "idx", "type": "int", "description": "Index of the sample."}
+                ],
+                "returns": "dict"
+              },
+              "get_sampling_weights": {
+                "description": "Returns the sampling weights for the dataset.",
+                "parameters": [
+                  {"name": "class_weight_dict", "type": "dict", "description": "Dictionary of class weights."},
+                  {"name": "length_weighting", "type": "bool", "description": "Whether to apply length weighting."},
+                  {"name": "group_by_col", "type": "str", "description": "Column name to group by."}
+                ],
+                "returns": "numpy.ndarray"
+              },
+              "get_id_mapping": {
+                "description": "Returns the ID mapping for the dataset.",
+                "parameters": [],
+                "returns": "list"
+              }
+            }
+          },
+          "RandomCrop": {
+            "description": "A transformation class for applying random cropping to a sample.",
+            "methods": {
+              "__init__": {
+                "description": "Initializes the RandomCrop object.",
+                "parameters": [
+                  {"name": "output_size", "type": "int", "description": "Size of the output crops."},
+                  {"name": "annotation", "type": "bool", "description": "Whether the sample contains annotations."}
+                ],
+                "returns": "None"
+              },
+              "__call__": {
+                "description": "Applies the random cropping transformation to a sample.",
+                "parameters": [
+                  {"name": "sample", "type": "dict", "description": "Sample to transform."}
+                ],
+                "returns": "dict"
+              }
+            }
+          },
+          "CenterCrop": {
+            "description": "A transformation class for applying center cropping to a sample.",
+            "methods": {
+              "__init__": {
+                "description": "Initializes the CenterCrop object.",
+                "parameters": [
+                  {"name": "output_size", "type": "int", "description": "Size of the output crops."},
+                  {"name": "annotation", "type": "bool", "description": "Whether the sample contains annotations."}
+                ],
+                "returns": "None"
+              },
+              "__call__": {
+                "description": "Applies the center cropping transformation to a sample.",
+                "parameters": [
+                  {"name": "sample", "type": "dict", "description": "Sample to transform."}
+                ],
+                "returns": "dict"
+              }
+            }
+          },
+          "GaussianNoise": {
+            "description": "A transformation class for adding Gaussian noise to a sample.",
+            "methods": {
+              "__init__": {
+                "description": "Initializes the GaussianNoise object.",
+                "parameters": [
+                  {"name": "scale", "type": "float", "description": "Scale of the Gaussian noise."}
+                ],
+                "returns": "None"
+              },
+              "__call__": {
+                "description": "Applies the Gaussian noise transformation to a sample.",
+                "parameters": [
+                  {"name": "sample", "type": "dict", "description": "Sample to transform."}
+                ],
+                "returns": "dict"
+              }
+            }
+          },
+          "Rescale": {
+            "description": "A transformation class for rescaling a sample.",
+            "methods": {
+              "__init__": {
+                "description": "Initializes the Rescale object.",
+                "parameters": [
+                  {"name": "scale", "type": "float", "description": "Scale factor for rescaling."},
+                  {"name": "interpolation_order", "type": "int", "description": "Order of the interpolation."}
+                ],
+                "returns": "None"
+              },
+              "__call__": {
+                "description": "Applies the rescaling transformation to a sample.",
+                "parameters": [
+                  {"name": "sample", "type": "dict", "description": "Sample to transform."}
+                ],
+                "returns": "dict"
+              }
+            }
+          },
+          "ToTensor": {
+            "description": "A transformation class for converting a sample to a PyTorch tensor.",
+            "methods": {
+              "__init__": {
+                "description": "Initializes the ToTensor object.",
+                "parameters": [
+                  {"name": "transpose_data1d", "type": "bool", "description": "Whether to transpose the data for 1D tensors."}
+                ],
+                "returns": "None"
+              },
+              "__call__": {
+                "description": "Applies the tensor conversion transformation to a sample.",
+                "parameters": [
+                  {"name": "sample", "type": "dict", "description": "Sample to transform."}
+                ],
+                "returns": "tuple"
+              }
+            }
+          },
+          "Normalize": {
+            "description": "A transformation class for normalizing a sample.",
+            "methods": {
+              "__init__": {
+                "description": "Initializes the Normalize object.",
+                "parameters": [
+                  {"name": "stats_mean", "type": "numpy.ndarray", "description": "Mean statistics for normalization."},
+                  {"name": "stats_std", "type": "numpy.ndarray", "description": "Standard deviation statistics for normalization."},
+                  {"name": "input", "type": "bool", "description": "Whether to normalize the input data."},
+                  {"name": "channels", "type": "list", "description": "List of channels to normalize."}
+                ],
+                "returns": "None"
+              },
+              "__call__": {
+                "description": "Applies the normalization transformation to a sample.",
+                "parameters": [
+                  {"name": "sample", "type": "dict", "description": "Sample to transform."}
+                ],
+                "returns": "dict"
+              }
+            }
+          },
+          "ButterFilter": {
+            "description": "A transformation class for applying a Butterworth filter to a sample.",
+            "methods": {
+              "__init__": {
+                "description": "Initializes the ButterFilter object.",
+                "parameters": [
+                  {"name": "lowcut", "type": "float", "description": "Low cutoff frequency."},
+                  {"name": "highcut", "type": "float", "description": "High cutoff frequency."},
+                  {"name": "fs", "type": "float", "description": "Sampling frequency."},
+                  {"name": "order", "type": "int", "description": "Order of the filter."},
+                  {"name": "btype", "type": "str", "description": "Type of the filter (e.g., 'band', 'low', 'high')."},
+                  {"name": "forwardbackward", "type": "bool", "description": "Whether to apply the filter forward and backward."},
+                  {"name": "input", "type": "bool", "description": "Whether to filter the input data."}
+                ],
+                "returns": "None"
+              },
+              "__call__": {
+                "description": "Applies the Butterworth filter transformation to a sample.",
+                "parameters": [
+                  {"name": "sample", "type": "dict", "description": "Sample to transform."}
+                ],
+                "returns": "dict"
+              }
+            }
+          },
+          "ChannelFilter": {
+            "description": "A transformation class for selecting certain channels from a sample.",
+            "methods": {
+              "__init__": {
+                "description": "Initializes the ChannelFilter object.",
+                "parameters": [
+                  {"name": "channels", "type": "list", "description": "List of channels to select."},
+                  {"name": "input", "type": "bool", "description": "Whether to filter the input data."}
+                ],
+                "returns": "None"
+              },
+              "__call__": {
+                "description": "Applies the channel filtering transformation to a sample.",
+                "parameters": [
+                  {"name": "sample", "type": "dict", "description": "Sample to transform."}
+                ],
+                "returns": "dict"
+              }
+            }
+          },
+          "Transform": {
+            "description": "A transformation class for applying a custom function to a sample.",
+            "methods": {
+              "__init__": {
+                "description": "Initializes the Transform object.",
+                "parameters": [
+                  {"name": "func", "type": "callable", "description": "Function to apply to the sample."},
+                  {"name": "input", "type": "bool", "description": "Whether to apply the function to the input data."}
+                ],
+                "returns": "None"
+              },
+              "__call__": {
+                "description": "Applies the custom transformation to a sample.",
+                "parameters": [
+                  {"name": "sample", "type": "dict", "description": "Sample to transform."}
+                ],
+                "returns": "dict"
+              }
+            }
+          },
+          "TupleTransform": {
+            "description": "A transformation class for applying a custom function to both data and label of a sample.",
+            "methods": {
+              "__init__": {
+                "description": "Initializes the TupleTransform object.",
+                "parameters": [
+                  {"name": "func", "type": "callable", "description": "Function to apply to the sample."}
+                ],
+                "returns": "None"
+              },
+              "__call__": {
+                "description": "Applies the custom transformation to both data and label of a sample.",
+                "parameters": [
+                  {"name": "sample", "type": "dict", "description": "Sample to transform."}
+                ],
+                "returns": "dict"
+              }
+            }
+          }
+        }
+      },
+        "stratisfy.py": {
+          "description": "This script contains functions for creating stratified folds for a dataset, ensuring balanced distribution of samples across folds.",
+          "functions": {
+            "stratisfy_df": {
+              "description": "Creates stratified folds for a given DataFrame.",
+              "parameters": [
+                {"name": "df", "type": "pandas.DataFrame", "description": "DataFrame containing the dataset."},
+                {"name": "new_col_name", "type": "str", "description": "Name of the new column to store fold assignments."},
+                {"name": "n_folds", "type": "int", "description": "Number of folds to create."},
+                {"name": "nr_clean_folds", "type": "int", "description": "Number of clean folds to create."}
+              ],
+              "returns": "The DataFrame with the added fold assignments."
+            },
+            "stratify": {
+              "description": "Creates stratified folds based on the given data and classes.",
+              "parameters": [
+                {"name": "data", "type": "list", "description": "List of lists containing labels for each sample."},
+                {"name": "classes", "type": "list", "description": "List of classes each label can take."},
+                {"name": "ratios", "type": "list", "description": "List of ratios summing to 1 for how the dataset should be split."},
+                {"name": "qualities", "type": "list", "description": "Quality per entry (only >0 can be assigned to clean folds; 4 will always be assigned to final fold)."},
+                {"name": "ecgs_per_patient", "type": "list", "description": "List with number of ECGs per sample."},
+                {"name": "nr_clean_folds", "type": "int", "description": "The last nr_clean_folds can only take clean entries."}
+              ],
+              "returns": "A tuple containing the stratified data IDs and stratified data."
+            }
+          }
+        }
+      }

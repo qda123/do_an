@@ -1,0 +1,882 @@
+{
+    "models": {
+        "base_model.py": {
+            "description": "This file contains a base class for classification models, providing a common interface for training and prediction.",
+            "classes": {
+                "ClassificationModel": {
+                    "description": "A base class for classification models.",
+                    "methods": {
+                        "__init__": {
+                            "description": "Initializes the ClassificationModel object.",
+                            "parameters": [],
+                            "returns": "None"
+                        },
+                        "fit": {
+                            "description": "Trains the model using the provided training and validation data.",
+                            "parameters": [
+                                {
+                                    "name": "X_train",
+                                    "type": "numpy.ndarray",
+                                    "description": "Training data."
+                                },
+                                {
+                                    "name": "y_train",
+                                    "type": "numpy.ndarray",
+                                    "description": "Training labels."
+                                },
+                                {
+                                    "name": "X_val",
+                                    "type": "numpy.ndarray",
+                                    "description": "Validation data."
+                                },
+                                {
+                                    "name": "y_val",
+                                    "type": "numpy.ndarray",
+                                    "description": "Validation labels."
+                                }
+                            ],
+                            "returns": "None"
+                        },
+                        "predict": {
+                            "description": "Predicts the labels for the provided data.",
+                            "parameters": [
+                                {
+                                    "name": "X",
+                                    "type": "numpy.ndarray",
+                                    "description": "Data to predict labels for."
+                                },
+                                {
+                                    "name": "full_sequence",
+                                    "type": "bool",
+                                    "description": "Whether to predict for the full sequence."
+                                }
+                            ],
+                            "returns": "numpy.ndarray"
+                        }
+                    }
+                }
+            }
+        },
+        "basic_conv1d.py": {
+            "description": "This file contains utility functions and a basic convolutional architecture for 1D data.",
+            "functions": {
+                "_conv1d": {
+                    "description": "Creates a 1D convolutional layer with optional batch normalization and activation function.",
+                    "parameters": [
+                        {
+                            "name": "in_planes",
+                            "type": "int",
+                            "description": "Number of input channels."
+                        },
+                        {
+                            "name": "out_planes",
+                            "type": "int",
+                            "description": "Number of output channels."
+                        },
+                        {
+                            "name": "kernel_size",
+                            "type": "int",
+                            "description": "Size of the convolutional kernel."
+                        },
+                        {
+                            "name": "stride",
+                            "type": "int",
+                            "description": "Stride of the convolution."
+                        },
+                        {
+                            "name": "dilation",
+                            "type": "int",
+                            "description": "Dilation rate of the convolution."
+                        },
+                        {
+                            "name": "act",
+                            "type": "str",
+                            "description": "Activation function to use."
+                        },
+                        {
+                            "name": "bn",
+                            "type": "bool",
+                            "description": "Whether to use batch normalization."
+                        },
+                        {
+                            "name": "drop_p",
+                            "type": "float",
+                            "description": "Dropout probability."
+                        }
+                    ],
+                    "returns": "torch.nn.Sequential"
+                },
+                "_fc": {
+                    "description": "Creates a fully connected layer with optional batch normalization and activation function.",
+                    "parameters": [
+                        {
+                            "name": "in_planes",
+                            "type": "int",
+                            "description": "Number of input features."
+                        },
+                        {
+                            "name": "out_planes",
+                            "type": "int",
+                            "description": "Number of output features."
+                        },
+                        {
+                            "name": "act",
+                            "type": "str",
+                            "description": "Activation function to use."
+                        },
+                        {
+                            "name": "bn",
+                            "type": "bool",
+                            "description": "Whether to use batch normalization."
+                        }
+                    ],
+                    "returns": "torch.nn.Sequential"
+                },
+                "cd_adaptiveconcatpool": {
+                    "description": "Concatenates the results of adaptive average pooling and adaptive max pooling.",
+                    "parameters": [
+                        {
+                            "name": "relevant",
+                            "type": "torch.Tensor",
+                            "description": "Relevant part of the input tensor."
+                        },
+                        {
+                            "name": "irrelevant",
+                            "type": "torch.Tensor",
+                            "description": "Irrelevant part of the input tensor."
+                        },
+                        {
+                            "name": "module",
+                            "type": "torch.nn.Module",
+                            "description": "Module containing the pooling layers."
+                        }
+                    ],
+                    "returns": "tuple"
+                },
+                "attrib_adaptiveconcatpool": {
+                    "description": "Helper function for attributing adaptive concat pooling.",
+                    "parameters": [
+                        {
+                            "name": "self",
+                            "type": "AdaptiveConcatPool1d",
+                            "description": "Instance of AdaptiveConcatPool1d."
+                        },
+                        {
+                            "name": "relevant",
+                            "type": "torch.Tensor",
+                            "description": "Relevant part of the input tensor."
+                        },
+                        {
+                            "name": "irrelevant",
+                            "type": "torch.Tensor",
+                            "description": "Irrelevant part of the input tensor."
+                        }
+                    ],
+                    "returns": "tuple"
+                },
+                "weight_init": {
+                    "description": "Initializes the weights of the model using Kaiming normal initialization for convolutional and linear layers, and constant initialization for batch normalization layers.",
+                    "parameters": [
+                        {
+                            "name": "m",
+                            "type": "torch.nn.Module",
+                            "description": "Module to initialize."
+                        }
+                    ],
+                    "returns": "None"
+                },
+                "create_head1d": {
+                    "description": "Creates a 1D model head with optional linear layers, batch normalization, and activation functions.",
+                    "parameters": [
+                        {
+                            "name": "nf",
+                            "type": "int",
+                            "description": "Number of input features."
+                        },
+                        {
+                            "name": "nc",
+                            "type": "int",
+                            "description": "Number of classes."
+                        },
+                        {
+                            "name": "lin_ftrs",
+                            "type": "list",
+                            "description": "List of linear layer sizes."
+                        },
+                        {
+                            "name": "ps",
+                            "type": "float",
+                            "description": "Dropout probability."
+                        },
+                        {
+                            "name": "bn_final",
+                            "type": "bool",
+                            "description": "Whether to apply batch normalization after the final layer."
+                        },
+                        {
+                            "name": "bn",
+                            "type": "bool",
+                            "description": "Whether to use batch normalization."
+                        },
+                        {
+                            "name": "act",
+                            "type": "str",
+                            "description": "Activation function to use."
+                        },
+                        {
+                            "name": "concat_pooling",
+                            "type": "bool",
+                            "description": "Whether to use concat pooling."
+                        }
+                    ],
+                    "returns": "torch.nn.Sequential"
+                }
+            },
+            "classes": {
+                "AdaptiveConcatPool1d": {
+                    "description": "Concatenates the results of adaptive average pooling and adaptive max pooling for 1D data.",
+                    "methods": {
+                        "__init__": {
+                            "description": "Initializes the AdaptiveConcatPool1d object.",
+                            "parameters": [
+                                {
+                                    "name": "sz",
+                                    "type": "int",
+                                    "description": "Output size of the pooling layers."
+                                }
+                            ],
+                            "returns": "None"
+                        },
+                        "forward": {
+                            "description": "Performs forward pass through the pooling layers.",
+                            "parameters": [
+                                {
+                                    "name": "x",
+                                    "type": "torch.Tensor",
+                                    "description": "Input tensor."
+                                }
+                            ],
+                            "returns": "torch.Tensor"
+                        },
+                        "attrib": {
+                            "description": "Attributes the pooling results.",
+                            "parameters": [
+                                {
+                                    "name": "relevant",
+                                    "type": "torch.Tensor",
+                                    "description": "Relevant part of the input tensor."
+                                },
+                                {
+                                    "name": "irrelevant",
+                                    "type": "torch.Tensor",
+                                    "description": "Irrelevant part of the input tensor."
+                                }
+                            ],
+                            "returns": "tuple"
+                        }
+                    }
+                },
+                "SqueezeExcite1d": {
+                    "description": "Squeeze-excite block for 1D data, as used in LSTM FCN.",
+                    "methods": {
+                        "__init__": {
+                            "description": "Initializes the SqueezeExcite1d object.",
+                            "parameters": [
+                                {
+                                    "name": "channels",
+                                    "type": "int",
+                                    "description": "Number of input channels."
+                                },
+                                {
+                                    "name": "reduction",
+                                    "type": "int",
+                                    "description": "Reduction factor for the squeeze operation."
+                                }
+                            ],
+                            "returns": "None"
+                        },
+                        "forward": {
+                            "description": "Performs forward pass through the squeeze-excite block.",
+                            "parameters": [
+                                {
+                                    "name": "x",
+                                    "type": "torch.Tensor",
+                                    "description": "Input tensor."
+                                }
+                            ],
+                            "returns": "torch.Tensor"
+                        }
+                    }
+                },
+                "basic_conv1d": {
+                    "description": "Basic convolutional architecture for 1D data.",
+                    "methods": {
+                        "__init__": {
+                            "description": "Initializes the basic_conv1d object.",
+                            "parameters": [
+                                {
+                                    "name": "filters",
+                                    "type": "list",
+                                    "description": "List of filter sizes."
+                                },
+                                {
+                                    "name": "kernel_size",
+                                    "type": "int",
+                                    "description": "Size of the convolutional kernel."
+                                },
+                                {
+                                    "name": "stride",
+                                    "type": "int",
+                                    "description": "Stride of the convolution."
+                                },
+                                {
+                                    "name": "dilation",
+                                    "type": "int",
+                                    "description": "Dilation rate of the convolution."
+                                },
+                                {
+                                    "name": "pool",
+                                    "type": "int",
+                                    "description": "Size of the max pooling layer."
+                                },
+                                {
+                                    "name": "pool_stride",
+                                    "type": "int",
+                                    "description": "Stride of the max pooling layer."
+                                },
+                                {
+                                    "name": "squeeze_excite_reduction",
+                                    "type": "int",
+                                    "description": "Reduction factor for the squeeze-excite block."
+                                },
+                                {
+                                    "name": "num_classes",
+                                    "type": "int",
+                                    "description": "Number of classes."
+                                },
+                                {
+                                    "name": "input_channels",
+                                    "type": "int",
+                                    "description": "Number of input channels."
+                                },
+                                {
+                                    "name": "act",
+                                    "type": "str",
+                                    "description": "Activation function to use."
+                                },
+                                {
+                                    "name": "bn",
+                                    "type": "bool",
+                                    "description": "Whether to use batch normalization."
+                                },
+                                {
+                                    "name": "headless",
+                                    "type": "bool",
+                                    "description": "Whether to use a headless model."
+                                },
+                                {
+                                    "name": "split_first_layer",
+                                    "type": "bool",
+                                    "description": "Whether to split the first layer."
+                                },
+                                {
+                                    "name": "drop_p",
+                                    "type": "float",
+                                    "description": "Dropout probability."
+                                },
+                                {
+                                    "name": "lin_ftrs_head",
+                                    "type": "list",
+                                    "description": "List of linear layer sizes for the head."
+                                },
+                                {
+                                    "name": "ps_head",
+                                    "type": "float",
+                                    "description": "Dropout probability for the head."
+                                },
+                                {
+                                    "name": "bn_final_head",
+                                    "type": "bool",
+                                    "description": "Whether to apply batch normalization after the final layer of the head."
+                                },
+                                {
+                                    "name": "bn_head",
+                                    "type": "bool",
+                                    "description": "Whether to use batch normalization in the head."
+                                },
+                                {
+                                    "name": "act_head",
+                                    "type": "str",
+                                    "description": "Activation function to use in the head."
+                                },
+                                {
+                                    "name": "concat_pooling",
+                                    "type": "bool",
+                                    "description": "Whether to use concat pooling in the head."
+                                }
+                            ],
+                            "returns": "None"
+                        },
+                        "get_layer_groups": {
+                            "description": "Returns the layer groups of the model.",
+                            "parameters": [],
+                            "returns": "tuple"
+                        },
+                        "get_output_layer": {
+                            "description": "Returns the output layer of the model.",
+                            "parameters": [],
+                            "returns": "torch.nn.Module"
+                        },
+                        "set_output_layer": {
+                            "description": "Sets the output layer of the model.",
+                            "parameters": [
+                                {
+                                    "name": "x",
+                                    "type": "torch.nn.Module",
+                                    "description": "New output layer."
+                                }
+                            ],
+                            "returns": "None"
+                        }
+                    }
+                }
+            }
+        },
+        "fastai_model.py": {
+            "description": "This file contains a FastAI-based implementation of a classification model, extending the base ClassificationModel class.",
+            "classes": {
+                "metric_func": {
+                    "description": "A callback class for custom metric functions.",
+                    "methods": {
+                        "__init__": {
+                            "description": "Initializes the metric_func object.",
+                            "parameters": [
+                                {
+                                    "name": "func",
+                                    "type": "callable",
+                                    "description": "Custom metric function."
+                                },
+                                {
+                                    "name": "name",
+                                    "type": "str",
+                                    "description": "Name of the metric."
+                                },
+                                {
+                                    "name": "ignore_idx",
+                                    "type": "int",
+                                    "description": "Index to ignore in the target labels."
+                                },
+                                {
+                                    "name": "one_hot_encode_target",
+                                    "type": "bool",
+                                    "description": "Whether to one-hot encode the target labels."
+                                },
+                                {
+                                    "name": "argmax_pred",
+                                    "type": "bool",
+                                    "description": "Whether to take the argmax of the predictions."
+                                },
+                                {
+                                    "name": "softmax_pred",
+                                    "type": "bool",
+                                    "description": "Whether to apply softmax to the predictions."
+                                },
+                                {
+                                    "name": "flatten_target",
+                                    "type": "bool",
+                                    "description": "Whether to flatten the target labels."
+                                },
+                                {
+                                    "name": "sigmoid_pred",
+                                    "type": "bool",
+                                    "description": "Whether to apply sigmoid to the predictions."
+                                },
+                                {
+                                    "name": "metric_component",
+                                    "type": "int",
+                                    "description": "Component of the metric to return."
+                                }
+                            ],
+                            "returns": "None"
+                        },
+                        "on_epoch_begin": {
+                            "description": "Resets the predictions and targets at the beginning of each epoch.",
+                            "parameters": [],
+                            "returns": "None"
+                        },
+                        "on_batch_end": {
+                            "description": "Updates the predictions and targets at the end of each batch.",
+                            "parameters": [
+                                {
+                                    "name": "last_output",
+                                    "type": "torch.Tensor",
+                                    "description": "Output of the last batch."
+                                },
+                                {
+                                    "name": "last_target",
+                                    "type": "torch.Tensor",
+                                    "description": "Target of the last batch."
+                                }
+                            ],
+                            "returns": "None"
+                        },
+                        "on_epoch_end": {
+                            "description": "Computes the custom metric at the end of each epoch.",
+                            "parameters": [
+                                {
+                                    "name": "last_metrics",
+                                    "type": "list",
+                                    "description": "List of last metrics."
+                                }
+                            ],
+                            "returns": "list"
+                        }
+                    }
+                },
+                "fastai_model": {
+                    "description": "A FastAI-based implementation of a classification model.",
+                    "methods": {
+                        "__init__": {
+                            "description": "Initializes the fastai_model object.",
+                            "parameters": [
+                                {
+                                    "name": "name",
+                                    "type": "str",
+                                    "description": "Name of the model."
+                                },
+                                {
+                                    "name": "n_classes",
+                                    "type": "int",
+                                    "description": "Number of classes."
+                                },
+                                {
+                                    "name": "freq",
+                                    "type": "int",
+                                    "description": "Sampling frequency of the data."
+                                },
+                                {
+                                    "name": "outputfolder",
+                                    "type": "str",
+                                    "description": "Path to the output folder."
+                                },
+                                {
+                                    "name": "input_shape",
+                                    "type": "tuple",
+                                    "description": "Shape of the input data."
+                                },
+                                {
+                                    "name": "pretrained",
+                                    "type": "bool",
+                                    "description": "Whether to use a pretrained model."
+                                },
+                                {
+                                    "name": "input_size",
+                                    "type": "float",
+                                    "description": "Input size in seconds."
+                                },
+                                {
+                                    "name": "input_channels",
+                                    "type": "int",
+                                    "description": "Number of input channels."
+                                },
+                                {
+                                    "name": "chunkify_train",
+                                    "type": "bool",
+                                    "description": "Whether to chunkify the training data."
+                                },
+                                {
+                                    "name": "chunkify_valid",
+                                    "type": "bool",
+                                    "description": "Whether to chunkify the validation data."
+                                },
+                                {
+                                    "name": "bs",
+                                    "type": "int",
+                                    "description": "Batch size."
+                                },
+                                {
+                                    "name": "ps_head",
+                                    "type": "float",
+                                    "description": "Dropout probability for the head."
+                                },
+                                {
+                                    "name": "lin_ftrs_head",
+                                    "type": "list",
+                                    "description": "List of linear layer sizes for the head."
+                                },
+                                {
+                                    "name": "wd",
+                                    "type": "float",
+                                    "description": "Weight decay."
+                                },
+                                {
+                                    "name": "epochs",
+                                    "type": "int",
+                                    "description": "Number of epochs to train."
+                                },
+                                {
+                                    "name": "lr",
+                                    "type": "float",
+                                    "description": "Learning rate."
+                                },
+                                {
+                                    "name": "kernel_size",
+                                    "type": "int",
+                                    "description": "Size of the convolutional kernel."
+                                },
+                                {
+                                    "name": "loss",
+                                    "type": "str",
+                                    "description": "Loss function to use."
+                                },
+                                {
+                                    "name": "pretrainedfolder",
+                                    "type": "str",
+                                    "description": "Path to the pretrained model folder."
+                                },
+                                {
+                                    "name": "n_classes_pretrained",
+                                    "type": "int",
+                                    "description": "Number of classes for the pretrained model."
+                                },
+                                {
+                                    "name": "gradual_unfreezing",
+                                    "type": "bool",
+                                    "description": "Whether to use gradual unfreezing."
+                                },
+                                {
+                                    "name": "discriminative_lrs",
+                                    "type": "bool",
+                                    "description": "Whether to use discriminative learning rates."
+                                },
+                                {
+                                    "name": "epochs_finetuning",
+                                    "type": "int",
+                                    "description": "Number of epochs for finetuning."
+                                },
+                                {
+                                    "name": "early_stopping",
+                                    "type": "str",
+                                    "description": "Early stopping criterion."
+                                },
+                                {
+                                    "name": "aggregate_fn",
+                                    "type": "str",
+                                    "description": "Aggregation function to use for predictions."
+                                },
+                                {
+                                    "name": "concat_train_val",
+                                    "type": "bool",
+                                    "description": "Whether to concatenate training and validation data."
+                                }
+                            ],
+                            "returns": "None"
+                        },
+                        "fit": {
+                            "description": "Trains the model using the provided training and validation data.",
+                            "parameters": [
+                                {
+                                    "name": "X_train",
+                                    "type": "list",
+                                    "description": "List of training data."
+                                },
+                                {
+                                    "name": "y_train",
+                                    "type": "list",
+                                    "description": "List of training labels."
+                                },
+                                {
+                                    "name": "X_val",
+                                    "type": "list",
+                                    "description": "List of validation data."
+                                },
+                                {
+                                    "name": "y_val",
+                                    "type": "list",
+                                    "description": "List of validation labels."
+                                }
+                            ],
+                            "returns": "None"
+                        },
+                        "predict": {
+                            "description": "Predicts the labels for the provided data.",
+                            "parameters": [
+                                {
+                                    "name": "X",
+                                    "type": "list",
+                                    "description": "List of data to predict labels for."
+                                }
+                            ],
+                            "returns": "numpy.ndarray"
+                        },
+                        "_get_learner": {
+                            "description": "Creates and returns a FastAI Learner object.",
+                            "parameters": [
+                                {
+                                    "name": "X_train",
+                                    "type": "list",
+                                    "description": "List of training data."
+                                },
+                                {
+                                    "name": "y_train",
+                                    "type": "list",
+                                    "description": "List of training labels."
+                                },
+                                {
+                                    "name": "X_val",
+                                    "type": "list",
+                                    "description": "List of validation data."
+                                },
+                                {
+                                    "name": "y_val",
+                                    "type": "list",
+                                    "description": "List of validation labels."
+                                },
+                                {
+                                    "name": "num_classes",
+                                    "type": "int",
+                                    "description": "Number of classes for the model."
+                                }
+                            ],
+                            "returns": "fastai.learner.Learner"
+                        }
+                    }
+                }
+            },
+            "functions": {
+                "fmax_metric": {
+                    "description": "Computes the F-max metric using the evaluate_experiment function.",
+                    "parameters": [
+                        {
+                            "name": "targs",
+                            "type": "numpy.ndarray",
+                            "description": "Target labels."
+                        },
+                        {
+                            "name": "preds",
+                            "type": "numpy.ndarray",
+                            "description": "Predicted labels."
+                        }
+                    ],
+                    "returns": "float"
+                },
+                "auc_metric": {
+                    "description": "Computes the AUC metric using the evaluate_experiment function.",
+                    "parameters": [
+                        {
+                            "name": "targs",
+                            "type": "numpy.ndarray",
+                            "description": "Target labels."
+                        },
+                        {
+                            "name": "preds",
+                            "type": "numpy.ndarray",
+                            "description": "Predicted labels."
+                        }
+                    ],
+                    "returns": "float"
+                },
+                "mse_flat": {
+                    "description": "Computes the mean squared error for flattened predictions and targets.",
+                    "parameters": [
+                        {
+                            "name": "preds",
+                            "type": "torch.Tensor",
+                            "description": "Predictions."
+                        },
+                        {
+                            "name": "targs",
+                            "type": "torch.Tensor",
+                            "description": "Targets."
+                        }
+                    ],
+                    "returns": "torch.Tensor"
+                },
+                "nll_regression": {
+                    "description": "Computes the negative log likelihood for regression tasks.",
+                    "parameters": [
+                        {
+                            "name": "preds",
+                            "type": "torch.Tensor",
+                            "description": "Predictions."
+                        },
+                        {
+                            "name": "targs",
+                            "type": "torch.Tensor",
+                            "description": "Targets."
+                        }
+                    ],
+                    "returns": "torch.Tensor"
+                },
+                "nll_regression_init": {
+                    "description": "Initializes the weights and biases for the regression output layer.",
+                    "parameters": [
+                        {
+                            "name": "m",
+                            "type": "torch.nn.Module",
+                            "description": "Module to initialize."
+                        }
+                    ],
+                    "returns": "None"
+                },
+                "lr_find_plot": {
+                    "description": "Saves the learning rate finder plot to a file.",
+                    "parameters": [
+                        {
+                            "name": "learner",
+                            "type": "fastai.learner.Learner",
+                            "description": "FastAI Learner object."
+                        },
+                        {
+                            "name": "path",
+                            "type": "pathlib.Path",
+                            "description": "Path to save the plot."
+                        },
+                        {
+                            "name": "filename",
+                            "type": "str",
+                            "description": "Filename for the plot."
+                        },
+                        {
+                            "name": "n_skip",
+                            "type": "int",
+                            "description": "Number of initial points to skip."
+                        },
+                        {
+                            "name": "n_skip_end",
+                            "type": "int",
+                            "description": "Number of final points to skip."
+                        }
+                    ],
+                    "returns": "None"
+                },
+                "losses_plot": {
+                    "description": "Saves the losses plot to a file.",
+                    "parameters": [
+                        {
+                            "name": "learner",
+                            "type": "fastai.learner.Learner",
+                            "description": "FastAI Learner object."
+                        },
+                        {
+                            "name": "path",
+                            "type": "pathlib.Path",
+                            "description": "Path to save the plot."
+                        },
+                        {
+                            "name": "filename",
+                            "type": "str",
+                            "description": "Filename for the plot."
+                        },
+                        {
+                            "name": "last",
+                            "type": "int",
+                            "description": "Number of last epochs to plot."
+                        }
+                    ],
+                    "returns": "None"
+                }
+            }
+        }
+    }
+}

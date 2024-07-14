@@ -1,0 +1,9 @@
+fastai==1.0.61
+scikit-image==0.18.3
+wfdb==3.4.1
+scikit-learn==1.0.1
+--extra-index-url https://download.pytorch.org/whl/cu113
+torch==1.10.0
+pillow==8.4.0
+torchvision==0.11.1
+tqdm

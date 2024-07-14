@@ -1,0 +1,213 @@
+{
+    "models": {
+        "inception1d.py": {
+            "Inception1d": {
+                "description": "InceptionTime architecture for 1D data. It combines multiple kernel sizes in parallel convolutional layers to capture various temporal scales.",
+                "parameters": {
+                    "num_classes": "Number of output classes.",
+                    "input_channels": "Number of input channels.",
+                    "kernel_size": "Base kernel size for inception blocks.",
+                    "depth": "Number of inception blocks.",
+                    "bottleneck_size": "Size of the bottleneck layer in inception blocks.",
+                    "nb_filters": "Number of filters in inception blocks.",
+                    "use_residual": "Whether to use residual connections.",
+                    "lin_ftrs_head": "List of linear layer sizes for the head.",
+                    "ps_head": "Dropout probability for the head.",
+                    "bn_final_head": "Whether to use batch normalization after the final layer in the head.",
+                    "bn_head": "Whether to use batch normalization in the head.",
+                    "act_head": "Activation function for the head.",
+                    "concat_pooling": "Whether to use concatenation pooling."
+                },
+                "methods": {
+                    "forward": "Forward pass through the network.",
+                    "get_layer_groups": "Returns layer groups for potential fine-tuning.",
+                    "get_output_layer": "Returns the final output layer.",
+                    "set_output_layer": "Sets the final output layer."
+                }
+            },
+            "InceptionBlock1d": {
+                "description": "A single inception block with multiple convolutional paths of different kernel sizes.",
+                "parameters": {
+                    "ni": "Number of input channels.",
+                    "nb_filters": "Number of filters in each convolutional path.",
+                    "kss": "List of kernel sizes for the convolutional paths.",
+                    "stride": "Stride for the convolutional layers.",
+                    "act": "Activation function.",
+                    "bottleneck_size": "Size of the bottleneck layer."
+                },
+                "methods": {
+                    "forward": "Forward pass through the inception block."
+                }
+            },
+            "Shortcut1d": {
+                "description": "Residual shortcut connection for the inception blocks.",
+                "parameters": {
+                    "ni": "Number of input channels.",
+                    "nf": "Number of output channels."
+                },
+                "methods": {
+                    "forward": "Forward pass through the shortcut layer."
+                }
+            },
+            "InceptionBackbone": {
+                "description": "Backbone of the InceptionTime architecture, consisting of multiple inception blocks and optional residual connections.",
+                "parameters": {
+                    "input_channels": "Number of input channels.",
+                    "kss": "List of kernel sizes for the inception blocks.",
+                    "depth": "Number of inception blocks.",
+                    "bottleneck_size": "Size of the bottleneck layer.",
+                    "nb_filters": "Number of filters in the inception blocks.",
+                    "use_residual": "Whether to use residual connections."
+                },
+                "methods": {
+                    "forward": "Forward pass through the backbone."
+                }
+            }
+        },
+        "resnet.py": {
+            "ResNet1d": {
+                "description": "1D adaptation of the ResNet architecture from torchvision, with customizable block types and depths.",
+                "parameters": {
+                    "block": "Type of block to use (BasicBlock1d or Bottleneck1d).",
+                    "layers": "List of number of blocks per layer.",
+                    "kernel_size": "Kernel size for the convolutional layers.",
+                    "num_classes": "Number of output classes.",
+                    "input_channels": "Number of input channels.",
+                    "inplanes": "Number of initial planes.",
+                    "fix_feature_dim": "Whether to fix the feature dimension across layers.",
+                    "kernel_size_stem": "Kernel size for the stem convolutional layer.",
+                    "stride_stem": "Stride for the stem convolutional layer.",
+                    "pooling_stem": "Whether to use max pooling in the stem.",
+                    "stride": "Stride for the convolutional layers.",
+                    "lin_ftrs_head": "List of linear layer sizes for the head.",
+                    "ps_head": "Dropout probability for the head.",
+                    "bn_final_head": "Whether to use batch normalization after the final layer in the head.",
+                    "bn_head": "Whether to use batch normalization in the head.",
+                    "act_head": "Activation function for the head.",
+                    "concat_pooling": "Whether to use concatenation pooling."
+                },
+                "methods": {
+                    "forward": "Forward pass through the network.",
+                    "get_layer_groups": "Returns layer groups for potential fine-tuning.",
+                    "get_output_layer": "Returns the final output layer.",
+                    "set_output_layer": "Sets the final output layer."
+                }
+            },
+            "BasicBlock1d": {
+                "description": "Basic building block for ResNet1d, consisting of two convolutional layers and optional downsampling.",
+                "parameters": {
+                    "inplanes": "Number of input planes.",
+                    "planes": "Number of output planes.",
+                    "stride": "Stride for the convolutional layers.",
+                    "kernel_size": "Kernel size for the convolutional layers.",
+                    "downsample": "Optional downsampling layer."
+                },
+                "methods": {
+                    "forward": "Forward pass through the basic block."
+                }
+            },
+            "Bottleneck1d": {
+                "description": "Bottleneck building block for ResNet1d, consisting of three convolutional layers and optional downsampling.",
+                "parameters": {
+                    "inplanes": "Number of input planes.",
+                    "planes": "Number of output planes.",
+                    "stride": "Stride for the convolutional layers.",
+                    "kernel_size": "Kernel size for the convolutional layers.",
+                    "downsample": "Optional downsampling layer."
+                },
+                "methods": {
+                    "forward": "Forward pass through the bottleneck block."
+                }
+            }
+        }
+    },
+    "rnn1d.py": {
+        "RNN1d": {
+            "description": "A recurrent neural network (RNN) model for 1D data, capable of using either LSTM or GRU cells. It includes adaptive pooling and a fully connected head for classification.",
+            "parameters": {
+                "input_channels": "Number of input channels.",
+                "num_classes": "Number of output classes.",
+                "lstm": "Boolean indicating whether to use LSTM (True) or GRU (False).",
+                "hidden_dim": "Dimension of the hidden state in the LSTM or GRU.",
+                "num_layers": "Number of layers in the LSTM or GRU.",
+                "bidirectional": "Boolean indicating whether the LSTM or GRU is bidirectional.",
+                "ps_head": "Dropout probability for the fully connected head.",
+                "act_head": "Activation function for the fully connected head.",
+                "lin_ftrs_head": "List of linear layer sizes for the head.",
+                "bn": "Boolean indicating whether to use batch normalization in the head."
+            },
+            "methods": {
+                "forward": "Forward pass through the network.",
+                "get_layer_groups": "Returns layer groups for potential fine-tuning.",
+                "get_output_layer": "Returns the final output layer.",
+                "set_output_layer": "Sets the final output layer."
+            }
+        },
+        "AdaptiveConcatPoolRNN": {
+            "description": "Adaptive pooling layer that concatenates average and max pooling, and optionally the last hidden state if the RNN is not bidirectional.",
+            "parameters": {
+                "bidirectional": "Boolean indicating whether the RNN is bidirectional."
+            },
+            "methods": {
+                "forward": "Forward pass through the adaptive pooling layer."
+            }
+        }
+    },
+    "xresnet1d.py": {
+        "XResNet1d": {
+            "description": "Extended ResNet (XResNet) architecture for 1D data, with customizable block types and depths. It includes a stem of convolutional layers followed by residual blocks and a fully connected head for classification.",
+            "parameters": {
+                "block": "Type of block to use (ResBlock).",
+                "expansion": "Expansion factor for the number of filters in the residual blocks.",
+                "layers": "List of number of blocks per layer.",
+                "p": "Dropout probability.",
+                "input_channels": "Number of input channels.",
+                "num_classes": "Number of output classes.",
+                "stem_szs": "List of filter sizes for the stem convolutional layers.",
+                "kernel_size": "Kernel size for the convolutional layers in the residual blocks.",
+                "kernel_size_stem": "Kernel size for the stem convolutional layers.",
+                "widen": "Width multiplier for the number of filters.",
+                "sa": "Boolean indicating whether to use self-attention in the residual blocks.",
+                "act_cls": "Activation function class for the convolutional layers.",
+                "lin_ftrs_head": "List of linear layer sizes for the head.",
+                "ps_head": "Dropout probability for the head.",
+                "bn_final_head": "Whether to use batch normalization after the final layer in the head.",
+                "bn_head": "Whether to use batch normalization in the head.",
+                "act_head": "Activation function for the head.",
+                "concat_pooling": "Whether to use concatenation pooling."
+            },
+            "methods": {
+                "forward": "Forward pass through the network.",
+                "get_layer_groups": "Returns layer groups for potential fine-tuning.",
+                "get_output_layer": "Returns the final output layer.",
+                "set_output_layer": "Sets the final output layer."
+            }
+        },
+        "ResBlock": {
+            "description": "Residual block for the XResNet1d architecture, consisting of convolutional layers and optional self-attention.",
+            "parameters": {
+                "expansion": "Expansion factor for the number of filters.",
+                "ni": "Number of input channels.",
+                "nf": "Number of output channels.",
+                "stride": "Stride for the convolutional layers.",
+                "kernel_size": "Kernel size for the convolutional layers.",
+                "groups": "Number of groups for the convolutional layers.",
+                "reduction": "Reduction factor for the SEModule (if used).",
+                "nh1": "Number of hidden units in the first convolutional layer.",
+                "nh2": "Number of hidden units in the second convolutional layer.",
+                "dw": "Boolean indicating whether to use depthwise convolution.",
+                "g2": "Number of groups for the second convolutional layer.",
+                "sa": "Boolean indicating whether to use self-attention.",
+                "sym": "Boolean indicating whether to use symmetric self-attention.",
+                "norm_type": "Type of normalization to use.",
+                "act_cls": "Activation function class for the convolutional layers.",
+                "ndim": "Number of dimensions for the convolutional layers.",
+                "pool": "Pooling function to use.",
+                "pool_first": "Boolean indicating whether to apply pooling before the identity path."
+            },
+            "methods": {
+                "forward": "Forward pass through the residual block."
+            }
+        }
+    }
+}
